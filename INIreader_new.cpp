@@ -1,3 +1,6 @@
+// Initial rewrite of the INI parser.
+// Sas van Gulik, 4-9-2022
+
 #include <iostream>
 #include <filesystem>
 #include <string>
@@ -165,7 +168,7 @@ INIstruct(std::fstream& file, std::string_view const& _name) :
         {
             auto path_value = normalize_path(value);
             folder_to = std::filesystem::path(path_value);
-            found_to = std::filesystem::exists(folder_in);
+            found_to = std::filesystem::exists(folder_to);
         }
 
         if (key=="DELAY")

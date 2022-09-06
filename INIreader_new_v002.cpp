@@ -209,7 +209,7 @@ struct SettingsList
         std::string line;
         while(getline(file,line))
         {
-            if(line.find("#")!=std::string::npos || line.length() == 0) continue; //comment or empty line
+            if(line.find("#")!=std::string_view::npos || line.length() == 0) continue; //comment or empty line
 
             auto const parse = parse_line(line);
         
@@ -217,23 +217,18 @@ struct SettingsList
 
             auto const& key = parse.value().first;
             auto const& value = parse.value().second;
-
-            //std::cout << key << " " << value << "\n";
-            /*
-            if(INI_cur == nullptr) //close degenerate service
+            
+            if(key != "SERVICE" && INI_cur == nullptr)
             {
-                if (key != "SERVICE" ) 
-                {
-                    printf("[SERVICE] not opened properly. Services should open and end with:\n[SERVICE] : Name of service\n-- settings --\n[SERVICE END]");
-                    break;
-                }
+                std::cout<< "SERVICE not defined properly. Exiting...";
+                break;
             }
-            */
+
             //run key through map and run function stored within.
             try
             {
                 auto func = parse_functions.at(key);
-                func(this ,value);
+                func(this, value);
             }
             catch(std::out_of_range const& except)
             {

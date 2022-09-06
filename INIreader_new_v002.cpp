@@ -217,12 +217,6 @@ struct SettingsList
 
             auto const& key = parse.value().first;
             auto const& value = parse.value().second;
-            
-            if(key != "SERVICE" && INI_cur == nullptr)
-            {
-                std::cout<< "SERVICE not defined properly. Exiting...";
-                break;
-            }
 
             //run key through map and run function stored within.
             try
@@ -233,6 +227,13 @@ struct SettingsList
             catch(std::out_of_range const& except)
             {
                 std::cout<< "keyword "<< key << " not present\n";
+            }
+            catch(std::runtime_error const& except)
+            {
+                std::cout << except.what();
+                std::cout << "Quitting...\n";
+                run = false;
+                break;
             }
 
         }
@@ -245,6 +246,10 @@ func_map_t const SettingsList::parse_functions =
     {"SERVICE", 
         [](SettingsList* Settings, std::string_view const& val)
         {       
+            if(Settings->INI_cur!=nullptr)
+            {
+                throw std::runtime_error("[ERROR] : SERVICE not properly initialised.\n");
+            }
             INIstruct* new_ini = new INIstruct(val);
             Settings->INI_cur = new_ini;
         }
@@ -322,6 +327,11 @@ func_map_t const SettingsList::parse_functions =
     {"SERVICE END", 
         [](SettingsList* Settings, std::string_view const& val)
         {       
+            if(Settings->INI_cur==nullptr)
+            {
+                throw std::runtime_error("[ERROR] : SERVICE END not properly initialised.\n");
+            }
+
             auto INI = *Settings->INI_cur;
             std::cout << "Verifying: " << INI.name << "...\n\n";
             if(verify_INI(INI))
@@ -343,5 +353,8 @@ func_map_t const SettingsList::parse_functions =
 int main()
 {
     auto Settings = SettingsList();
+    if(!Settings.run) return 0;
+
+    std::cout << "Amount of services present in memory: " << Settings.services.size() << "\n";
     return 0;
 }

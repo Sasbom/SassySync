@@ -7,7 +7,6 @@
 #include <string_view>
 #include <fstream>
 #include <chrono>
-#include <future>
 #include <thread>
 #include <ctime>
 #include <stdexcept>

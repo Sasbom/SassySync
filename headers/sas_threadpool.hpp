@@ -22,7 +22,7 @@
 class threadPool
 {
 public:
-    int max_threads = -1; //when not defined, allow for as many threads as possible.
+    uint32_t max_threads = 0; //when not defined, allow for as many threads as possible.
 
     void Run();
     void addJob(std::function<void()> const& job);
@@ -31,7 +31,7 @@ public:
     void waitForAll();
 
     threadPool(){};
-    threadPool(size_t const& _max_threads): max_threads(_max_threads){};
+    threadPool(uint32_t const& _max_threads): max_threads(_max_threads){};
 
     template<typename ... Args>
     void addJob_bind(Args&&... job_args);
@@ -58,7 +58,7 @@ inline void threadPool::Run()
     uint32_t num_threads;
     auto concur_max = std::thread::hardware_concurrency();
 
-    if (max_threads <= 0 || max_threads > concur_max) 
+    if (max_threads == 0 || max_threads > concur_max) 
         num_threads = concur_max;
     else 
         num_threads = std::move(max_threads);

@@ -382,7 +382,7 @@ void job_sync(INIstruct const& settings)
 {
     //setting some options for updating files when nessecary
 
-    std::filesystem::copy_options cpy_opions = std::filesystem::copy_options::update_existing;
+    std::filesystem::copy_options cpy_options = std::filesystem::copy_options::overwrite_existing;
 
     for(std::filesystem::directory_entry dir 
         : std::filesystem::recursive_directory_iterator(settings.folder_in))
@@ -403,7 +403,7 @@ void job_sync(INIstruct const& settings)
             }
             else if (std::filesystem::is_regular_file(cur_path))
             {
-                std::filesystem::copy_file(cur_path,rel_to_path);
+                std::filesystem::copy(cur_path,rel_to_path,cpy_options);
             }
         }
         else
@@ -415,7 +415,12 @@ void job_sync(INIstruct const& settings)
                 
                 if(time_in_file>time_to_file)
                 {
-                    std::filesystem::copy(cur_path,rel_to_path,cpy_opions);
+                    std::filesystem::remove(rel_to_path); // safeguard
+                    try {
+                        std::filesystem::copy(cur_path,rel_to_path,cpy_options);
+                    } catch (std::exception& e) {
+                        std::cout << "Exception occurred during update of file " << rel_to_path <<":\n" << e.what() << "\n\nMoving on...";
+                    }
                 }
             }
         }
